@@ -1,0 +1,70 @@
+# TATAVERNIS - Configuration Apache
+# URLs propres et sécurité
+
+# Activer la réécriture d'URL
+RewriteEngine On
+
+# Base du site
+RewriteBase /tatavernis/
+
+# Rediriger HTTP vers HTTPS (décommenter en production)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Empêcher l'accès aux fichiers sensibles
+<FilesMatch "\.(env|sql|log|ini|config)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Protéger les dossiers sensibles
+RedirectMatch 403 ^/tatavernis/config/.*$
+RedirectMatch 403 ^/tatavernis/classes/.*$
+RedirectMatch 403 ^/tatavernis/includes/.*$
+RedirectMatch 403 ^/tatavernis/database/.*$
+
+# Empêcher le listing des dossiers
+Options -Indexes
+
+# Configuration du cache navigateur
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType application/pdf "access plus 1 month"
+    ExpiresByType video/mp4 "access plus 1 year"
+    ExpiresByType video/webm "access plus 1 year"
+</IfModule>
+
+# Compression GZIP
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# Sécurité des headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Redirection des erreurs personnalisées
+ErrorDocument 404 /tatavernis/404.php
+ErrorDocument 500 /tatavernis/500.php
+
+# URL propres pour les produits (optionnel)
+# RewriteRule ^produit/([a-z0-9-]+)/?$ produit.php?slug=$1 [L,QSA]
+# RewriteRule ^categorie/([a-z0-9-]+)/?$ boutique.php?categorie=$1 [L,QSA]
+# RewriteRule ^blog/([a-z0-9-]+)/?$ article.php?slug=$1 [L,QSA]
